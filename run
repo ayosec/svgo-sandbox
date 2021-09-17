@@ -1,0 +1,17 @@
+#!/bin/bash
+
+set -euo pipefail
+
+BIN=$(realpath "$(dirname "$0")")/vendor
+
+exec env -i \
+    bwrap                        \
+      --ro-bind /usr{,}          \
+      --ro-bind "$BIN" /vendor   \
+      --symlink usr/lib64 /lib64 \
+      --symlink usr/lib /lib     \
+      --bind "$PWD" /host        \
+      --unshare-all              \
+      --chdir /host              \
+      --new-session              \
+      "/vendor/svgo" "$@"
